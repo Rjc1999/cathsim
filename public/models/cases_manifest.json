@@ -1,0 +1,31 @@
+{
+ "version": 1,
+ "note": "Curated anatomical heart (Sketchfab model, scripts/build-heart.mjs). Frame: LPS mm, isocenter (0,0,0) = myocardium volume centroid. The earlier CT-derived patient library is kept outside public/ (build/cohort_library).",
+ "default": "heart",
+ "cases": [
+  {
+   "id": "heart",
+   "number": 1,
+   "displayName": "Case 1",
+   "label": "Case 1: Standard Anatomy",
+   "variantNote": "Standard anatomy",
+   "branches": [
+    "LM",
+    "LAD",
+    "D1",
+    "D2",
+    "S1",
+    "S2",
+    "S3",
+    "LCx",
+    "OM1",
+    "RCA",
+    "AM",
+    "PDA",
+    "PLB"
+   ],
+   "labeling": "curated",
+   "provisional": false
+  }
+ ]
+}

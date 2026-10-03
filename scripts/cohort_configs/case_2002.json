@@ -1,0 +1,95 @@
+{
+  "case_id": "ct_test_2002_image",
+  "note": "Branch naming for this patient. Segment ids refer to the pruned skeleton tree (consolidated tree: micro-twigs under 22 mm, side branches under 20 mm or 25 degrees and parallel strands removed; named segments are protected from removal) printed by process_cohort_case.py; each entry pins its segment by an anchor point (LPS mm, in the CT frame BEFORE isocenter normalisation) and the build fails if the anchor no longer resolves to the same segment. LABELS ARE PROVISIONAL: arteries cannot be told from adjacent cardiac veins by intensity alone, and PDA/PLB could not be identified in this extraction. Needs clinician review.",
+  "twig_prune_mm": 22,
+  "lm_length_mm": 8,
+  "branches": {
+    "LCA": [
+      {
+        "id": "LM",
+        "label": "Left main",
+        "lm": true,
+        "labelT": 0.6
+      },
+      {
+        "id": "LAD",
+        "label": "Left anterior descending",
+        "seg": 1,
+        "tip_seg": 30,
+        "labelT": 0.35,
+        "anchor": [
+          33.1,
+          4.2,
+          -104.4
+        ]
+      },
+      {
+        "id": "D1",
+        "label": "First diagonal / ramus",
+        "seg": 3,
+        "labelT": 0.6,
+        "anchor": [
+          40.1,
+          4.2,
+          -107.9
+        ]
+      },
+      {
+        "id": "D2",
+        "label": "Second diagonal",
+        "seg": 17,
+        "labelT": 0.6,
+        "anchor": [
+          53.6,
+          -6.3,
+          -113.9
+        ]
+      },
+      {
+        "id": "LCx",
+        "label": "Left circumflex",
+        "seg": 36,
+        "tip_seg": 61,
+        "labelT": 0.4,
+        "anchor": [
+          31.1,
+          7.7,
+          -105.4
+        ]
+      },
+      {
+        "id": "OM1",
+        "label": "First obtuse marginal",
+        "seg": 102,
+        "labelT": 0.55,
+        "anchor": [
+          42.1,
+          29.7,
+          -142.9
+        ]
+      }
+    ],
+    "RCA": [
+      {
+        "id": "RCA",
+        "label": "Right coronary artery",
+        "seg": 14,
+        "tip_seg": 30,
+        "labelT": 0.4,
+        "anchor": [
+          -1.4,
+          -21.8,
+          -109.9
+        ]
+      }
+    ]
+  },
+  "exclude_segs": {
+    "RCA": [
+      {
+        "seg": 1,
+        "reason": "chain along the right atrial lateral wall, median 38 mm from the right AV groove (0% within 6 mm): not a coronary branch"
+      }
+    ]
+  }
+}
