@@ -1,10 +1,12 @@
-import { useEffect, useMemo } from 'react'
+import { Suspense, useEffect, useMemo } from 'react'
 import { Color, MeshStandardMaterial } from 'three'
 import { useHeartParts } from '../lib/heartModel'
-import { useGantryStore } from '../store/useGantryStore'
+import { useVeinParts } from '../lib/veins'
+import { useGantryStore, venousShown } from '../store/useGantryStore'
 
 const LCA_COLOR = '#d31f3d' // crimson
 const RCA_COLOR = '#ff7d1f' // vermilion / amber
+const VEIN_COLOR = '#3f5bd6' // venous blue (Explore venous layer)
 const HIGHLIGHT_COLOR = '#00f0ff'
 const DIM_COLOR = '#7a7a84'
 /** Vessels are pushed out along their normals by this much (mm) so thin branches read at thumbnail size. */
@@ -24,6 +26,60 @@ const SILHOUETTE_LOOK: Record<string, { color: string; opacity: number }> = {
   PulmonaryTrunk: { color: '#ffffff', opacity: 0.55 },
 }
 
+/** Matte vessel material shared by the arteries and the veins: highlight = cyan glow, everything else dimmed while one is highlighted. */
+function vesselMaterial(baseColor: string, id: string, highlightId: string | null) {
+  const base = new Color(baseColor)
+  let color = base
+  let emissive = new Color('#000000')
+  let glow = 0
+  if (highlightId !== null) {
+    if (id === highlightId) {
+      color = new Color(HIGHLIGHT_COLOR)
+      emissive = new Color(HIGHLIGHT_COLOR)
+      glow = 0.85
+    } else {
+      color = base.clone().lerp(new Color(DIM_COLOR), 0.6)
+    }
+  }
+  const m = new MeshStandardMaterial({ color, emissive, emissiveIntensity: glow, roughness: 0.55, metalness: 0.05 })
+  m.onBeforeCompile = (shader) => {
+    shader.vertexShader = shader.vertexShader.replace(
+      '#include <begin_vertex>',
+      `#include <begin_vertex>\n  transformed += normal * ${VESSEL_INFLATE_MM.toFixed(2)};`,
+    )
+  }
+  return m
+}
+
+/**
+ * Explore venous layer in the twin: opaque vessels in venous blue, drawn before the translucent shells like the arteries.
+ * Tapping a vein highlights it here and in the fluoro view.
+ */
+function VeinMeshes() {
+  const parts = useVeinParts()
+  const highlightId = useGantryStore((s) => s.highlightId)
+  const materials = useMemo(() => parts.map((p) => vesselMaterial(VEIN_COLOR, p.id, highlightId)), [parts, highlightId])
+  useEffect(() => () => materials.forEach((m) => m.dispose()), [materials])
+  return (
+    <>
+      {parts.map((p, i) => (
+        <mesh key={p.id} geometry={p.geometry} material={materials[i]} userData={{ branchId: p.id }} renderOrder={1} />
+      ))}
+    </>
+  )
+}
+
+/** Mounted only while the Explore venous layer is on, in its own Suspense boundary so the arteries never blank while it streams in. */
+function VeinLayer() {
+  const shown = useGantryStore(venousShown)
+  if (!shown) return null
+  return (
+    <Suspense fallback={null}>
+      <VeinMeshes />
+    </Suspense>
+  )
+}
+
 /**
  * The lit "clay" teaching heart, built from the anatomical model: translucent chambers and great vessels, and the
  * fully shaded coronary branches. Vessels are opaque and drawn first; the translucent shells (front faces only, no
@@ -35,30 +91,7 @@ export function ToyHeart() {
   const highlightId = useGantryStore((s) => s.highlightId)
 
   const vesselMaterials = useMemo(
-    () =>
-      coronary.map((c) => {
-        const base = new Color(c.system === 'LCA' ? LCA_COLOR : RCA_COLOR)
-        let color = base
-        let emissive = new Color('#000000')
-        let glow = 0
-        if (highlightId !== null) {
-          if (c.id === highlightId) {
-            color = new Color(HIGHLIGHT_COLOR)
-            emissive = new Color(HIGHLIGHT_COLOR)
-            glow = 0.85
-          } else {
-            color = base.clone().lerp(new Color(DIM_COLOR), 0.6)
-          }
-        }
-        const m = new MeshStandardMaterial({ color, emissive, emissiveIntensity: glow, roughness: 0.55, metalness: 0.05 })
-        m.onBeforeCompile = (shader) => {
-          shader.vertexShader = shader.vertexShader.replace(
-            '#include <begin_vertex>',
-            `#include <begin_vertex>\n  transformed += normal * ${VESSEL_INFLATE_MM.toFixed(2)};`,
-          )
-        }
-        return m
-      }),
+    () => coronary.map((c) => vesselMaterial(c.system === 'LCA' ? LCA_COLOR : RCA_COLOR, c.id, highlightId)),
     [coronary, highlightId],
   )
   useEffect(() => () => vesselMaterials.forEach((m) => m.dispose()), [vesselMaterials])
@@ -69,6 +102,7 @@ export function ToyHeart() {
       {coronary.map((c, i) => (
         <mesh key={`${c.system}_${c.id}`} geometry={c.geometry} material={vesselMaterials[i]} userData={{ branchId: c.id }} renderOrder={1} />
       ))}
+      <VeinLayer />
       {silhouette.map((part) => {
         const look = SILHOUETTE_LOOK[part.id] ?? { color: '#a9b8cc', opacity: 0.6 }
         return (

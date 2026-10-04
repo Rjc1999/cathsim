@@ -5,7 +5,8 @@ import { useGantryDrag } from '../hooks/useGantryDrag'
 import { DETECTOR_FOV_MM, SID_MM, SOD_MM } from '../lib/gantry'
 import { makeProjector } from '../lib/projection'
 import { getTree } from '../lib/tree'
-import { labelsShown, useGantryStore } from '../store/useGantryStore'
+import { getVeinTree } from '../lib/veins'
+import { labelsShown, useGantryStore, venousShown } from '../store/useGantryStore'
 import { BranchLabels, type LabelRegistry } from './BranchLabels'
 import { APERTURE_INSET_PCT, CollimatedFrame } from './CollimatedFrame'
 import { FluoroCanvas } from './FluoroCanvas'
@@ -66,6 +67,7 @@ export function FluoroViewport({ compact = false, paused = false }: { compact?: 
   const labels = useGantryStore(labelsShown)
   const highlightId = useGantryStore((s) => s.highlightId)
   const landmarks = useGantryStore((s) => s.landmarks)
+  const venous = useGantryStore(venousShown)
 
   const stateRef = useRef<RootState | null>(null)
   const registry = useRef<LabelRegistry>(new Map())
@@ -73,7 +75,7 @@ export function FluoroViewport({ compact = false, paused = false }: { compact?: 
   // Overlay DOM (labels) mounts after the store change; make sure a frame runs once it exists.
   useEffect(() => {
     stateRef.current?.invalidate()
-  }, [labels, vessel, highlightId, landmarks, paused])
+  }, [labels, vessel, highlightId, landmarks, venous, paused])
 
   const drag = useGantryDrag({
     zoomPan: true,
@@ -91,7 +93,9 @@ export function FluoroViewport({ compact = false, paused = false }: { compact?: 
       const h = rect.height - 2 * inset
       const v = new Vector3()
       let best: { id: string; d: number } | null = null
-      for (const branch of getTree(useGantryStore.getState().vessel)) {
+      const gantry = useGantryStore.getState()
+      const pickable = venousShown(gantry) ? [...getTree(gantry.vessel), ...getVeinTree(gantry.currentCaseId)] : getTree(gantry.vessel)
+      for (const branch of pickable) {
         for (const [x, y, z] of branch.hitSamples) {
           v.set(x, y, z).project(state.camera)
           // Horizontal mirror: the canvas is flipped on screen, pointer coordinates are not.

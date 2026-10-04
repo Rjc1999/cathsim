@@ -10,6 +10,7 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "build:heart": "node scripts/build-heart.mjs \"anatomical-heart-codominance/source/rechts dominant versie 1.fbx\" public/models/heart.glb",
+    "build:veins": "node scripts/build-veins.mjs \"anatomical-heart-codominance/source/rechts dominant versie 1.fbx\" public/models/heart.veins.glb",
     "inspect:heart": "node scripts/inspect-fbx.mjs \"anatomical-heart-codominance/source/rechts dominant versie 1.fbx\"",
     "process:case": "python scripts/process_cohort_case.py ct_test_2002_image"
   },

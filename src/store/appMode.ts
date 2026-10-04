@@ -24,6 +24,9 @@ export function setAppMode(next: AppMode) {
     highlightId: null,
     labelsMode: 'user',
     highlightLocked: false,
+    // the venous layer is an Explore-only extra: every mode switch starts without it
+    showVenousCirculation: false,
+    venousError: null,
   })
   if (next === 'game') useGameStore.getState().enter()
 }

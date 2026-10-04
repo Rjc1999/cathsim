@@ -8,6 +8,7 @@ import { DETECTOR_BG } from './CollimatedFrame'
 import { CoronaryTree } from './CoronaryTree'
 import { Landmarks } from './Landmarks'
 import { SoftTissueShadow } from './SoftTissueShadow'
+import { VenousTree } from './VenousTree'
 
 interface FluoroCanvasProps {
   vessel: VesselId
@@ -47,6 +48,8 @@ export function FluoroCanvas({ vessel, alpha, beta, frameloop = 'demand', stateR
         <SoftTissueShadow />
         <CoronaryTree vessel={vessel} />
       </Suspense>
+      {/* Explore-only venous layer; its own Suspense boundary inside, so it never blanks the arteries while it streams in. */}
+      <VenousTree />
       {labelRegistry && <LabelProjector vessel={vessel} registry={labelRegistry} />}
     </Canvas>
   )

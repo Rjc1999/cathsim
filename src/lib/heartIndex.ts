@@ -6,9 +6,11 @@
  * envelope for the curated model). The meshes live in <case>.glb.
  */
 export type VesselId = 'LCA' | 'RCA'
+/** Which tree a centerline belongs to: an injected coronary artery system, or the cardiac veins ('VEN', Explore-only overlay, see lib/veinData.ts). */
+export type BranchSystem = VesselId | 'VEN'
 
 export interface BranchIndex {
-  system: VesselId
+  system: BranchSystem
   id: string
   label: string
   /** Arc-length fraction of the centerline where the label pill is anchored. */
@@ -71,6 +73,9 @@ export interface CasesManifest {
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/')
 export const caseGlbUrl = (caseId: string) => `${base}models/${caseId}.glb`
 export const caseIndexUrl = (caseId: string) => `${base}models/${caseId}.index.json`
+/** Cardiac venous overlay of a case (scripts/build-veins.mjs): fetched only when the Explore "Venous" toggle is first switched on. */
+export const caseVeinsGlbUrl = (caseId: string) => `${base}models/${caseId}.veins.glb`
+export const caseVeinsIndexUrl = (caseId: string) => `${base}models/${caseId}.veins.index.json`
 const MANIFEST_URL = `${base}models/cases_manifest.json`
 
 export async function loadManifest(): Promise<CasesManifest> {

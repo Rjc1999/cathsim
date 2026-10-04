@@ -5,6 +5,7 @@ import { createAttenuatorMaterial, setAttenuatorLook, setLesionUniforms } from '
 import { useResolvedLesion } from '../lib/lesion'
 import { useHeartParts } from '../lib/heartModel'
 import type { VesselId } from '../lib/heartIndex'
+import { isVeinId } from '../lib/veinData'
 import { useGantryStore } from '../store/useGantryStore'
 
 /**
@@ -29,14 +30,16 @@ export function CoronaryTree({ vessel }: { vessel: VesselId }) {
   useEffect(() => () => materials.forEach((m) => m.dispose()), [materials])
 
   const highlightId = useGantryStore((s) => s.highlightId)
+  const caseId = useGantryStore((s) => s.currentCaseId)
   const invalidate = useThree((s) => s.invalidate)
   useEffect(() => {
-    const anyHighlight = highlightId !== null && materials.has(highlightId)
+    // A highlighted vein (Explore venous layer) dims the arteries too; the highlight of the other injected system never does.
+    const anyHighlight = highlightId !== null && (materials.has(highlightId) || isVeinId(caseId, highlightId))
     for (const [id, mat] of materials) {
       setAttenuatorLook(mat, !anyHighlight ? 'normal' : id === highlightId ? 'highlight' : 'dim')
     }
     invalidate()
-  }, [highlightId, materials, invalidate])
+  }, [highlightId, caseId, materials, invalidate])
 
   // Synthetic stenosis (runtime only): the branch it sits on gets the lesion uniforms, every other branch is untouched.
   const { lesion, params } = useResolvedLesion()

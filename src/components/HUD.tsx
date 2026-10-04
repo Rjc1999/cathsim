@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react'
-import { EyeOff, Layers, Tag } from 'lucide-react'
+import { Droplets, EyeOff, Layers, Tag } from 'lucide-react'
 import type { VesselId } from '../lib/heartIndex'
 import { useTree } from '../lib/tree'
-import { labelsShown, useGantryStore } from '../store/useGantryStore'
+import { useVenousBranches } from '../lib/veins'
+import { labelsShown, useGantryStore, venousShown } from '../store/useGantryStore'
 import { ProTipCard } from './ProTipCard'
 
 export const btn =
@@ -96,18 +97,50 @@ export function ViewToggles() {
   )
 }
 
+/**
+ * Explore-only anatomical layer: the cardiac veins (coronary sinus and tributaries) on the fluoro image and the 3D twin. Rendered by the
+ * Explore HUD alone; Target Views and the lesion game never show it (the store also forces it off outside Explore).
+ */
+export function VenousToggle() {
+  const on = useGantryStore(venousShown)
+  const loading = useGantryStore((s) => s.venousLoading)
+  const error = useGantryStore((s) => s.venousError)
+  const toggle = useGantryStore((s) => s.toggleVenousCirculation)
+  return (
+    <div>
+      <ToggleButton
+        label="Venous circulation"
+        on={on}
+        onClick={() => void toggle()}
+        icon={<Droplets size={16} aria-hidden />}
+        disabled={loading}
+        value={loading ? 'Loading…' : undefined}
+        title="Show the coronary sinus, great / middle cardiac veins, posterior vein of the LV and anterior interventricular vein"
+      />
+      {error && (
+        <p role="alert" className="mt-1.5 text-xs text-rose-400">
+          {error}
+        </p>
+      )}
+    </div>
+  )
+}
+
 /** Branch chips: an alternative to tapping a vessel or label (handy on a phone), shared with the twin. */
 export function BranchChips() {
   const vessel = useGantryStore((s) => s.vessel)
   const highlightId = useGantryStore((s) => s.highlightId)
   const toggleHighlight = useGantryStore((s) => s.toggleHighlight)
-  const branches = useTree(vessel)
+  const arteries = useTree(vessel)
+  const veins = useVenousBranches()
+  const branches = [...arteries, ...veins]
   return (
     <div>
       <h2 className="mb-1.5 text-xs font-semibold uppercase tracking-widest text-zinc-500">Highlight branch</h2>
       <div className="flex flex-wrap gap-1.5" role="group" aria-label="Highlight branch">
         {branches.map((b) => {
           const active = b.id === highlightId
+          const vein = b.vessel === 'VEN'
           return (
             <button
               key={b.id}
@@ -118,7 +151,9 @@ export function BranchChips() {
               className={`rounded-full border px-3 py-1 font-mono text-xs font-semibold transition-colors ${
                 active
                   ? 'border-cyan-300 bg-cyan-300 text-zinc-950'
-                  : 'border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200'
+                  : vein
+                    ? 'border-indigo-500/60 text-indigo-300 hover:border-indigo-400 hover:text-indigo-100'
+                    : 'border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200'
               }`}
             >
               {b.id}
@@ -141,6 +176,7 @@ export function HUD() {
       <VesselToggle />
       <ProTipCard />
       <ViewToggles />
+      <VenousToggle />
       <BranchChips />
     </div>
   )

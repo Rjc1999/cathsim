@@ -2,14 +2,15 @@ import { useMemo } from 'react'
 import { CatmullRomCurve3, Vector3 } from 'three'
 import type { Vec3 } from './gantry'
 import { useGantryStore } from '../store/useGantryStore'
-import { getActiveCaseId, getHeartIndex, type BranchIndex, type VesselId } from './heartIndex'
+import { getActiveCaseId, getHeartIndex, type BranchIndex, type BranchSystem, type VesselId } from './heartIndex'
 
 export type { VesselId }
 
 export interface TreeBranch {
   id: string
   label: string
-  vessel: VesselId
+  /** The injected coronary system, or 'VEN' for the Explore-only venous overlay (never returned by getTree). */
+  vessel: BranchSystem
   /** Arc-length fraction where the label pill and its leader line are anchored. */
   labelT: number
   /** Smooth curve through the main-path centerline (LPS mm), parameterised by arc length. */
@@ -26,7 +27,7 @@ export interface TreeBranch {
 /** Keyed by `${caseId}:${vessel}`, so switching patients never serves another patient's centerlines. */
 const cache = new Map<string, TreeBranch[]>()
 
-function toBranch(b: BranchIndex): TreeBranch {
+export function toBranch(b: BranchIndex): TreeBranch {
   const pts = b.centerline.map(([x, y, z]) => new Vector3(x, y, z))
   // A degenerate (e.g. 2-point) centerline still needs a valid curve.
   if (pts.length < 2) pts.push(pts[0].clone().add(new Vector3(0.01, 0, 0)))

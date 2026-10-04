@@ -2,6 +2,7 @@ import { useGLTF } from '@react-three/drei'
 import { create } from 'zustand'
 import { findTarget, targetsFor, type TargetPreset } from '../data/targets'
 import { loadCaseIndex, setActiveCase, caseGlbUrl, type CaseEntry, type VesselId } from '../lib/heartIndex'
+import { isVeinId, preloadVeins } from '../lib/veinData'
 import { angularErrorDeg, clamp, clampAlpha, clampBeta } from '../lib/gantry'
 
 /**
@@ -107,6 +108,14 @@ interface GantryState {
   highlightId: string | null
   /** 3D twin camera on the tube side (looking at the back of the heart) instead of the detector side. */
   twinBehind: boolean
+  /**
+   * Explore-only anatomical layer: the cardiac veins (coronary sinus and tributaries) in the fluoro image, labels, chips and the 3D twin.
+   * Default off. Read it through `venousShown`, which also requires Explore mode; `setAppMode` and `loadCase` reset it.
+   */
+  showVenousCirculation: boolean
+  /** The venous model is being fetched (first switch-on only). */
+  venousLoading: boolean
+  venousError: string | null
 
   /** Called once at startup, after the manifest and the first case's index are loaded. */
   initCases: (cases: CaseEntry[], currentCaseId: string) => void
@@ -126,6 +135,8 @@ interface GantryState {
   toggleLandmarks: () => void
   toggleLabels: () => void
   toggleTwinBehind: () => void
+  /** Explore only: switch the venous layer on (fetching its model the first time) or off. Turning it off clears a highlighted vein. */
+  toggleVenousCirculation: () => Promise<void>
   /** Highlight a branch; passing the already highlighted id (or null) clears it. */
   toggleHighlight: (id: string | null) => void
   /** Switch the injected vessel. Resets the gantry to AP unless `keepPose` (the lesion game keeps the angle you found). */
@@ -141,6 +152,9 @@ interface GantryState {
 }
 
 const firstTargetId = (vessel: VesselId) => targetsFor(vessel)[0].id
+
+/** Whether the venous layer is drawn right now: the user's toggle, and only ever in Explore (never in Target Views or the game). */
+export const venousShown = (s: Pick<GantryState, 'mode' | 'showVenousCirculation'>) => s.mode === 'explore' && s.showVenousCirculation
 
 /** Whether the branch label pills are drawn right now. */
 export const labelsShown = (s: Pick<GantryState, 'labels' | 'labelsMode'>) =>
@@ -168,6 +182,9 @@ export const useGantryStore = create<GantryState>()((set, get) => ({
   highlightLocked: false,
   highlightId: null,
   twinBehind: false,
+  showVenousCirculation: false,
+  venousLoading: false,
+  venousError: null,
 
   initCases: (cases, currentCaseId) => set({ availableCases: cases, currentCaseId }),
 
@@ -183,7 +200,7 @@ export const useGantryStore = create<GantryState>()((set, get) => ({
       setActiveCase(caseId)
       // Gantry angle is kept on purpose (comparing the same projection across patients is the point). A locked view
       // belonged to the previous patient, so the fluoro resumes; the highlight names a branch that may not exist here.
-      set({ currentCaseId: caseId, caseLoading: null, phase: 'live', result: null, highlightId: null })
+      set({ currentCaseId: caseId, caseLoading: null, phase: 'live', result: null, highlightId: null, showVenousCirculation: false, venousError: null })
     } catch (e) {
       console.error(e)
       set({ caseLoading: null, caseError: `Could not load ${caseId}` })
@@ -227,6 +244,24 @@ export const useGantryStore = create<GantryState>()((set, get) => ({
   toggleLandmarks: () => set((s) => ({ landmarks: !s.landmarks })),
   toggleLabels: () => set((s) => (s.labelsMode === 'user' ? { labels: !s.labels } : s)),
   toggleTwinBehind: () => set((s) => ({ twinBehind: !s.twinBehind })),
+  toggleVenousCirculation: async () => {
+    const { mode, showVenousCirculation, venousLoading, currentCaseId, highlightId } = get()
+    if (mode !== 'explore' || venousLoading) return
+    if (showVenousCirculation) {
+      set({ showVenousCirculation: false, highlightId: isVeinId(currentCaseId, highlightId) ? null : highlightId })
+      return
+    }
+    set({ venousLoading: true, venousError: null })
+    try {
+      await preloadVeins(currentCaseId)
+      // The user may have switched mode or patient while the model was downloading: then the layer is no longer theirs to show.
+      const now = get()
+      set({ venousLoading: false, ...(now.mode === 'explore' && now.currentCaseId === currentCaseId ? { showVenousCirculation: true } : {}) })
+    } catch (e) {
+      console.error(e)
+      set({ venousLoading: false, venousError: 'Could not load the venous model' })
+    }
+  },
   toggleHighlight: (id) =>
     set((s) => (s.highlightLocked ? s : { highlightId: id === null || id === s.highlightId ? null : id })),
 

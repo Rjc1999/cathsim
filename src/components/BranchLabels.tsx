@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import { Vector3 } from 'three'
 import type { VesselId } from '../lib/heartIndex'
 import { useTree } from '../lib/tree'
+import { useVenousBranches } from '../lib/veins'
 import { labelsShown, useGantryStore } from '../store/useGantryStore'
 
 /** DOM handles of one label, filled in by the overlay and driven each frame by the projector. */
@@ -28,13 +29,16 @@ export function BranchLabels({ vessel, registry }: { vessel: VesselId; registry:
   const visible = useGantryStore(labelsShown)
   const highlightId = useGantryStore((s) => s.highlightId)
   const toggleHighlight = useGantryStore((s) => s.toggleHighlight)
-  const branches = useTree(vessel)
+  const arteries = useTree(vessel)
+  const veins = useVenousBranches()
+  const branches = useMemo(() => [...arteries, ...veins], [arteries, veins])
   if (!visible) return null
 
   return (
     <div className="pointer-events-none absolute inset-0">
       {branches.map((b) => {
         const active = b.id === highlightId
+        const vein = b.vessel === 'VEN'
         return (
           <div
             key={b.id}
@@ -73,7 +77,9 @@ export function BranchLabels({ vessel, registry }: { vessel: VesselId; registry:
               className={`pointer-events-auto absolute left-0 top-0 whitespace-nowrap rounded-full px-2 py-0.5 font-mono text-[10px] font-semibold leading-tight ring-1 transition-colors ${
                 active
                   ? 'bg-cyan-300 text-zinc-950 ring-cyan-100'
-                  : 'bg-zinc-900/85 text-zinc-100 ring-zinc-500 hover:bg-zinc-800'
+                  : vein
+                    ? 'bg-indigo-950/90 text-indigo-100 ring-indigo-400 hover:bg-indigo-900'
+                    : 'bg-zinc-900/85 text-zinc-100 ring-zinc-500 hover:bg-zinc-800'
               }`}
             >
               {b.id}
@@ -92,7 +98,9 @@ export function BranchLabels({ vessel, registry }: { vessel: VesselId; registry:
  * from the tree centroid, so labels fan out instead of stacking on the vessels.
  */
 export function LabelProjector({ vessel, registry }: { vessel: VesselId; registry: MutableRefObject<LabelRegistry> }) {
-  const branches = useTree(vessel)
+  const arteries = useTree(vessel)
+  const veins = useVenousBranches()
+  const branches = useMemo(() => [...arteries, ...veins], [arteries, veins])
   const tmp = useMemo(() => ({ a: new Vector3(), b: new Vector3(), c: new Vector3() }), [])
 
   useFrame(({ camera, size }) => {
