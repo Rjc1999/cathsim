@@ -5,8 +5,7 @@ import { createAttenuatorMaterial, setAttenuatorLook, setLesionUniforms } from '
 import { useResolvedLesion } from '../lib/lesion'
 import { useHeartParts } from '../lib/heartModel'
 import type { VesselId } from '../lib/heartIndex'
-import { isVeinId } from '../lib/veinData'
-import { useGantryStore } from '../store/useGantryStore'
+import { useGantryStore, venousShown } from '../store/useGantryStore'
 
 /**
  * Relative attenuation coefficient of iodinated contrast (1/mm). Tuned visually: 0.36 read too pale, 0.6 gives
@@ -30,16 +29,14 @@ export function CoronaryTree({ vessel }: { vessel: VesselId }) {
   useEffect(() => () => materials.forEach((m) => m.dispose()), [materials])
 
   const highlightId = useGantryStore((s) => s.highlightId)
-  const caseId = useGantryStore((s) => s.currentCaseId)
   const invalidate = useThree((s) => s.invalidate)
   useEffect(() => {
-    // A highlighted vein (Explore venous layer) dims the arteries too; the highlight of the other injected system never does.
-    const anyHighlight = highlightId !== null && (materials.has(highlightId) || isVeinId(caseId, highlightId))
+    const anyHighlight = highlightId !== null && materials.has(highlightId)
     for (const [id, mat] of materials) {
       setAttenuatorLook(mat, !anyHighlight ? 'normal' : id === highlightId ? 'highlight' : 'dim')
     }
     invalidate()
-  }, [highlightId, caseId, materials, invalidate])
+  }, [highlightId, materials, invalidate])
 
   // Synthetic stenosis (runtime only): the branch it sits on gets the lesion uniforms, every other branch is untouched.
   const { lesion, params } = useResolvedLesion()
@@ -47,6 +44,10 @@ export function CoronaryTree({ vessel }: { vessel: VesselId }) {
     for (const [id, mat] of materials) setLesionUniforms(mat, lesion && id === lesion.branchName ? params : null)
     invalidate()
   }, [lesion, params, materials, invalidate])
+
+  // Explore coronary-sinus injection: only the veins are opacified, the LCA / RCA tree is not drawn at all.
+  const venous = useGantryStore(venousShown)
+  if (venous) return null
 
   // dispose={null}: geometries come from the shared, cached GLB and must outlive this component.
   return (

@@ -21,11 +21,10 @@ function VenousMeshes() {
   }, [parts])
   useEffect(() => () => materials.forEach((m) => m.dispose()), [materials])
 
-  // One highlight id spans both trees: a highlighted vein dims the arteries and the veins around it, and a highlighted artery dims the veins.
   const highlightId = useGantryStore((s) => s.highlightId)
   const invalidate = useThree((s) => s.invalidate)
   useEffect(() => {
-    for (const [id, mat] of materials) setAttenuatorLook(mat, highlightId === null ? 'normal' : id === highlightId ? 'highlight' : 'dim')
+    for (const [id, mat] of materials) setAttenuatorLook(mat, !materials.has(highlightId ?? '') ? 'normal' : id === highlightId ? 'highlight' : 'dim')
     invalidate()
   }, [highlightId, materials, invalidate])
 
@@ -40,8 +39,8 @@ function VenousMeshes() {
 }
 
 /**
- * The Explore-only venous layer of the fluoro image. Mounted only while `venousShown`, inside its own Suspense boundary so the model
- * arriving never blanks the arteries.
+ * The Explore-only coronary-sinus injection of the fluoro image (the arteries are not drawn then, see CoronaryTree). Mounted only while
+ * `venousShown`, inside its own Suspense boundary so the model arriving never blanks the image.
  */
 export function VenousTree() {
   const shown = useGantryStore(venousShown)

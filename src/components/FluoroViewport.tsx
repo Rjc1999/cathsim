@@ -94,7 +94,7 @@ export function FluoroViewport({ compact = false, paused = false }: { compact?: 
       const v = new Vector3()
       let best: { id: string; d: number } | null = null
       const gantry = useGantryStore.getState()
-      const pickable = venousShown(gantry) ? [...getTree(gantry.vessel), ...getVeinTree(gantry.currentCaseId)] : getTree(gantry.vessel)
+      const pickable = venousShown(gantry) ? getVeinTree(gantry.currentCaseId) : getTree(gantry.vessel)
       for (const branch of pickable) {
         for (const [x, y, z] of branch.hitSamples) {
           v.set(x, y, z).project(state.camera)

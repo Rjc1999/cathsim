@@ -89,6 +89,7 @@ function VeinLayer() {
 export function ToyHeart() {
   const { silhouette, coronary } = useHeartParts()
   const highlightId = useGantryStore((s) => s.highlightId)
+  const venous = useGantryStore(venousShown)
 
   const vesselMaterials = useMemo(
     () => coronary.map((c) => vesselMaterial(c.system === 'LCA' ? LCA_COLOR : RCA_COLOR, c.id, highlightId)),
@@ -99,7 +100,7 @@ export function ToyHeart() {
   return (
     // dispose={null}: geometries come from the shared, cached GLB and must outlive this component.
     <group dispose={null}>
-      {coronary.map((c, i) => (
+      {!venous && coronary.map((c, i) => (
         <mesh key={`${c.system}_${c.id}`} geometry={c.geometry} material={vesselMaterials[i]} userData={{ branchId: c.id }} renderOrder={1} />
       ))}
       <VeinLayer />

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ChevronDown, ChevronUp, Lightbulb } from 'lucide-react'
-import { getAngioProTip } from '../lib/proTips'
-import { useGantryStore } from '../store/useGantryStore'
+import { getAngioProTip, getVenousProTip } from '../lib/proTips'
+import { useGantryStore, venousShown } from '../store/useGantryStore'
 
 const KEY = 'cathsim.protip.collapsed'
 const load = () => {
@@ -24,7 +24,7 @@ const save = (v: boolean) => {
  * re-renders only when the tip changes (not on every drag pixel). Collapsible to a one-line pill to keep phones uncluttered.
  */
 export function ProTipCard() {
-  const tip = useGantryStore((s) => getAngioProTip(s.alpha, s.beta, s.vessel))
+  const tip = useGantryStore((s) => (venousShown(s) ? getVenousProTip(s.alpha, s.beta) : getAngioProTip(s.alpha, s.beta, s.vessel)))
   const [collapsed, setCollapsed] = useState(load)
   const toggle = () => {
     setCollapsed((c) => {

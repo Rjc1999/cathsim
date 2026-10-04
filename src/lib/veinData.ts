@@ -34,15 +34,21 @@ function loadVeinIndex(caseId: string): Promise<VeinIndex> {
   return p
 }
 
-/** Fetch the index and the GLB for a case and start parsing the GLB, so the canvases find it in drei's cache when the layer appears. */
-export async function preloadVeins(caseId: string): Promise<void> {
-  const glb = caseVeinsGlbUrl(caseId)
-  await Promise.all([loadVeinIndex(caseId), fetch(glb).then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(`${glb} (${r.status})`))))])
-  useGLTF.preload(glb, false)
+const preloads = new Map<string, Promise<void>>()
+
+/** Fetch the index and the GLB for a case and start parsing the GLB, so the canvases find it in drei's cache when the layer appears. Once per case. */
+export function preloadVeins(caseId: string): Promise<void> {
+  let p = preloads.get(caseId)
+  if (!p) {
+    const glb = caseVeinsGlbUrl(caseId)
+    p = Promise.all([loadVeinIndex(caseId), fetch(glb).then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(`${glb} (${r.status})`))))]).then(() => {
+      useGLTF.preload(glb, false)
+    })
+    p.catch(() => preloads.delete(caseId)) // allow a retry after a network failure
+    preloads.set(caseId, p)
+  }
+  return p
 }
 
 /** The venous branch index of a case, or undefined until preloadVeins() has resolved for it. */
 export const getVeinIndex = (caseId: string): VeinIndex | undefined => loaded.get(caseId)
-
-/** Whether `id` names a venous branch of the case (false while the venous layer has never been loaded). */
-export const isVeinId = (caseId: string, id: string | null): boolean => id !== null && !!loaded.get(caseId)?.branches.some((b) => b.id === id)

@@ -26,3 +26,15 @@ export function getAngioProTip(alpha: number, beta: number, vessel: VesselId): s
     return '💡 AP Baseline: High overlap. Swing RAO to move away from the spine or LAO to uncross branches.'
   return null
 }
+
+/**
+ * Explore coronary-sinus injection. Only landmark rules that hold for any structure (spine, diaphragm) plus one anatomical pearl taken from
+ * the venous model itself; no projection claims about specific veins, which would need clinical review.
+ */
+export function getVenousProTip(alpha: number, beta: number): string {
+  if (alpha >= 20) return '💡 Spine Rule: The spine is on the screen-RIGHT ⇒ you are in an LAO projection.'
+  if (alpha <= -20) return '💡 Spine Rule: The spine is on the screen-LEFT ⇒ you are in an RAO projection.'
+  if (beta >= 20) return '💡 Diaphragm Rule: The diaphragm dome rises into the lower field ⇒ you are tilted Cranial.'
+  if (beta <= -20) return '💡 Diaphragm Rule: The diaphragm drops out of the frame ⇒ you are tilted Caudal.'
+  return '🩸 Coronary sinus: opens into the right atrium at the CS ostium and runs along the left AV groove as the great cardiac vein, which turns into the anterior interventricular vein beside the LAD. The middle cardiac vein joins near the ostium; the posterior vein of the LV joins at the distal CS.'
+}

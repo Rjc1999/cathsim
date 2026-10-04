@@ -2,7 +2,7 @@ import { useGLTF } from '@react-three/drei'
 import { create } from 'zustand'
 import { findTarget, targetsFor, type TargetPreset } from '../data/targets'
 import { loadCaseIndex, setActiveCase, caseGlbUrl, type CaseEntry, type VesselId } from '../lib/heartIndex'
-import { isVeinId, preloadVeins } from '../lib/veinData'
+import { preloadVeins } from '../lib/veinData'
 import { angularErrorDeg, clamp, clampAlpha, clampBeta } from '../lib/gantry'
 
 /**
@@ -109,8 +109,9 @@ interface GantryState {
   /** 3D twin camera on the tube side (looking at the back of the heart) instead of the detector side. */
   twinBehind: boolean
   /**
-   * Explore-only anatomical layer: the cardiac veins (coronary sinus and tributaries) in the fluoro image, labels, chips and the 3D twin.
-   * Default off. Read it through `venousShown`, which also requires Explore mode; `setAppMode` and `loadCase` reset it.
+   * Explore-only third "injection": the coronary sinus (cardiac veins) instead of the LCA / RCA. While on, the arteries are NOT drawn
+   * (fluoro image, labels, chips, 3D twin) and only the veins are. Default off. Read it through `venousShown`, which also requires Explore
+   * mode; `setVessel` (picking LCA / RCA), `setAppMode` and `loadCase` switch it off.
    */
   showVenousCirculation: boolean
   /** The venous model is being fetched (first switch-on only). */
@@ -135,7 +136,7 @@ interface GantryState {
   toggleLandmarks: () => void
   toggleLabels: () => void
   toggleTwinBehind: () => void
-  /** Explore only: switch the venous layer on (fetching its model the first time) or off. Turning it off clears a highlighted vein. */
+  /** Explore only: inject the coronary sinus (venous tree only, arteries hidden), fetching its model the first time, or go back to the arteries. */
   toggleVenousCirculation: () => Promise<void>
   /** Highlight a branch; passing the already highlighted id (or null) clears it. */
   toggleHighlight: (id: string | null) => void
@@ -245,10 +246,10 @@ export const useGantryStore = create<GantryState>()((set, get) => ({
   toggleLabels: () => set((s) => (s.labelsMode === 'user' ? { labels: !s.labels } : s)),
   toggleTwinBehind: () => set((s) => ({ twinBehind: !s.twinBehind })),
   toggleVenousCirculation: async () => {
-    const { mode, showVenousCirculation, venousLoading, currentCaseId, highlightId } = get()
+    const { mode, showVenousCirculation, venousLoading, currentCaseId } = get()
     if (mode !== 'explore' || venousLoading) return
     if (showVenousCirculation) {
-      set({ showVenousCirculation: false, highlightId: isVeinId(currentCaseId, highlightId) ? null : highlightId })
+      set({ showVenousCirculation: false, highlightId: null })
       return
     }
     set({ venousLoading: true, venousError: null })
@@ -256,7 +257,8 @@ export const useGantryStore = create<GantryState>()((set, get) => ({
       await preloadVeins(currentCaseId)
       // The user may have switched mode or patient while the model was downloading: then the layer is no longer theirs to show.
       const now = get()
-      set({ venousLoading: false, ...(now.mode === 'explore' && now.currentCaseId === currentCaseId ? { showVenousCirculation: true } : {}) })
+      // An artery highlighted before the switch names nothing in the venous tree, so it is dropped.
+      set({ venousLoading: false, ...(now.mode === 'explore' && now.currentCaseId === currentCaseId ? { showVenousCirculation: true, highlightId: null } : {}) })
     } catch (e) {
       console.error(e)
       set({ venousLoading: false, venousError: 'Could not load the venous model' })
@@ -266,8 +268,14 @@ export const useGantryStore = create<GantryState>()((set, get) => ({
     set((s) => (s.highlightLocked ? s : { highlightId: id === null || id === s.highlightId ? null : id })),
 
   setVessel: (vessel, keepPose = false) => {
-    if (vessel === get().vessel) return
+    if (vessel === get().vessel) {
+      // Picking the artery that was injected before the coronary sinus: just leave the venous tree, the pose stays.
+      if (get().showVenousCirculation) set({ showVenousCirculation: false, venousError: null, highlightId: null })
+      return
+    }
     set({
+      showVenousCirculation: false,
+      venousError: null,
       vessel,
       targetId: firstTargetId(vessel),
       ...(keepPose ? {} : { alpha: 0, beta: 0 }),

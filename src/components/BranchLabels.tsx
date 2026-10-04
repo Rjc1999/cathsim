@@ -31,7 +31,8 @@ export function BranchLabels({ vessel, registry }: { vessel: VesselId; registry:
   const toggleHighlight = useGantryStore((s) => s.toggleHighlight)
   const arteries = useTree(vessel)
   const veins = useVenousBranches()
-  const branches = useMemo(() => [...arteries, ...veins], [arteries, veins])
+  // The coronary-sinus injection shows only the veins; otherwise only the injected artery's branches.
+  const branches = veins.length ? veins : arteries
   if (!visible) return null
 
   return (
@@ -100,7 +101,8 @@ export function BranchLabels({ vessel, registry }: { vessel: VesselId; registry:
 export function LabelProjector({ vessel, registry }: { vessel: VesselId; registry: MutableRefObject<LabelRegistry> }) {
   const arteries = useTree(vessel)
   const veins = useVenousBranches()
-  const branches = useMemo(() => [...arteries, ...veins], [arteries, veins])
+  // The coronary-sinus injection shows only the veins; otherwise only the injected artery's branches.
+  const branches = veins.length ? veins : arteries
   const tmp = useMemo(() => ({ a: new Vector3(), b: new Vector3(), c: new Vector3() }), [])
 
   useFrame(({ camera, size }) => {
