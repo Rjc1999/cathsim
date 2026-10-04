@@ -44,3 +44,6 @@ Thumbs.db
 
 # Full private development log (contains local infrastructure details; never publish)
 run_log.private.md
+
+# private execution log
+run_log.md
