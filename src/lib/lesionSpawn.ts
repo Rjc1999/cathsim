@@ -29,7 +29,7 @@ export const SIDE_IDS = ['D1', 'D2', 'AM', 'PDA'] as const
 
 /** Every selectable branch per injected coronary system, in anatomical order (the chips of the diagnosis console). */
 export const BRANCHES_BY_SYSTEM: Record<VesselId, readonly string[]> = {
-  LCA: ['LM', 'LAD', 'D1', 'D2', 'S1', 'S2', 'S3', 'LCx', 'OM1'],
+  LCA: ['LM', 'LAD', 'D1', 'D2', 'S1', 'S2', 'S3', 'S4', 'LCx', 'OM1', 'OM2'],
   RCA: ['RCA', 'AM', 'PDA', 'PLB'],
 }
 

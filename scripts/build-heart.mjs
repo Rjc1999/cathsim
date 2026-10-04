@@ -83,15 +83,21 @@ const BRANCHES = {
     { id: 'LAD', label: 'Left anterior descending', expectSeg: 1, anchor: [13.6, -11.4, 41.3], labelT: 0.3 },
     { id: 'D1', label: 'First diagonal', expectSeg: 24, anchor: [45.9, -15, 32], labelT: 0.55 },
     { id: 'D2', label: 'Second diagonal', expectSeg: 5, anchor: [51.7, -45.6, -3.4], labelT: 0.55 },
-    // Septal perforators of the LAD, chosen by scripts/septal-audit.mjs: they leave the LAD heading posteriorly (dy > +0.3) and stay
-    // inside the interventricular septal plane (best fit through the LAD and PDA grooves; mean distance 1.2 / 2.9 / 3.1 mm, whereas
-    // the diagonals D1 / D2 lie 28 / 11 mm from it). Numbered proximal to distal by where they leave the LAD (t = 0.27 / 0.50 / 0.64).
-    // S3 leaves at only 26 degrees (S1 44, S2 49), so it is the least certain of the three. Shorter stubs (< 16 mm) stay with the LAD.
-    { id: 'S1', label: 'First septal perforator', expectSeg: 23, anchor: [17.4, -26.8, -2.5], labelT: 0.5 },
-    { id: 'S2', label: 'Second septal perforator', expectSeg: 20, anchor: [29.2, -42.9, -6.7], labelT: 0.5 },
-    { id: 'S3', label: 'Third septal perforator', expectSeg: 18, anchor: [37.7, -48.0, -19.9], labelT: 0.55 },
+    // Septal perforators of the LAD, numbered proximal to distal by where they leave the LAD (t = 0.02 / 0.27 / 0.50 / 0.64) and
+    // chosen with scripts/septal-audit.mjs: they stay inside the interventricular septal plane (best fit through the LAD and PDA
+    // grooves; mean distance 2.6 / 1.2 / 2.9 / 3.1 mm, whereas the diagonals D1 / D2 lie 28 / 11 mm from it). S1 (seg 25) is the very
+    // proximal, short-lived first septal: it leaves the LAD at 81 deg and runs slightly anterior (dy -0.18), which the first audit
+    // rejected, but the clinical review names it S1 (it is the branch that was left unlabelled). S4 leaves at only 26 degrees
+    // (S2 44, S3 49), so it is the least certain. Shorter stubs (< 16 mm) stay with the LAD.
+    { id: 'S1', label: 'First septal perforator', expectSeg: 25, anchor: [13.2, -16.5, 31.2], labelT: 0.5 },
+    { id: 'S2', label: 'Second septal perforator', expectSeg: 23, anchor: [17.4, -26.8, -2.5], labelT: 0.5 },
+    { id: 'S3', label: 'Third septal perforator', expectSeg: 20, anchor: [29.2, -42.9, -6.7], labelT: 0.5 },
+    { id: 'S4', label: 'Fourth septal perforator', expectSeg: 18, anchor: [37.7, -48.0, -19.9], labelT: 0.55 },
     { id: 'LCx', label: 'Left circumflex', expectSeg: 26, anchor: [20.5, 35, 38.9], tip: [-1.1, 59.8, -4.8], labelT: 0.4 },
     { id: 'OM1', label: 'First obtuse marginal', expectSeg: 36, anchor: [37.4, 50.4, 7.2], labelT: 0.6 },
+    // OM2: skeleton seg 29, the 49 mm branch that leaves the LCx at its first bend (t ~ 0.3 of the LCx) and forks distally; its fork (segs 30-35)
+    // inherits the label. Named on clinical review; before that it was drawn as part of the LCx.
+    { id: 'OM2', label: 'Second obtuse marginal', expectSeg: 29, anchor: [7.6, 59.6, -8.5], labelT: 0.5 },
   ],
   RCA: [
     { id: 'RCA', label: 'Right coronary artery', expectSeg: 0, anchor: [-24.1, -39.6, 43.8], root: true, labelT: 0.35 },
