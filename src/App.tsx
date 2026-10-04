@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { ArrowLeftRight, Move } from 'lucide-react'
+import { ArrowLeftRight, Bug, Move } from 'lucide-react'
 import { AnatomyTwin } from './components/AnatomyTwin'
 import { ApButton } from './components/ApButton'
 import { CaseSelector } from './components/CaseSelector'
@@ -107,6 +107,10 @@ export default function App() {
     </HeartGate>
   )
 }
+
+/** Pre-filled GitHub issue (title prefix and a short template for description, expected behaviour and device / browser). */
+const FEEDBACK_URL =
+  'https://github.com/Rjc1999/cathsim/issues/new?title=%5BFeedback%2FBug%5D+&body=%2A%2ADescription%2A%2A%3A%0A%0A%2A%2AExpected+Behavior%2A%2A%3A%0A%0A%2A%2ADevice%2FBrowser%2A%2A%3A'
 
 function Trainer() {
   usePedalShortcut()
@@ -229,6 +233,18 @@ function Trainer() {
           CC BY-NC-SA
         </a>
         . Not for clinical use or commercial use.
+      </p>
+      {/* Feedback link: in the page flow under the attribution (never fixed), so it cannot cover the viewports, the PiP window or the HUD. */}
+      <p className="text-center">
+        <a
+          className="inline-flex min-h-9 items-center gap-1.5 px-3 text-[11px] text-zinc-600 transition-colors hover:text-zinc-300 focus-visible:text-zinc-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
+          href={FEEDBACK_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Bug size={12} aria-hidden />
+          Feedback / Report Issue
+        </a>
       </p>
     </div>
   )
