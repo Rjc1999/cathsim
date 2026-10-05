@@ -7,6 +7,7 @@ import { ControlSchemeToggle } from './components/ControlSchemeToggle'
 import { FluoroViewport } from './components/FluoroViewport'
 import { GameHUD } from './components/GameHUD'
 import { HUD } from './components/HUD'
+import { InstallNudge } from './components/InstallNudge'
 import { TargetHUD } from './components/TargetHUD'
 import { ModeBanner, ModeToggle } from './components/ModeToggle'
 import { useInstallPrompt } from './hooks/useInstallPrompt'
@@ -272,6 +273,7 @@ function Trainer() {
         </a>
         <InstallAppButton />
       </p>
+      <InstallNudge />
     </div>
   )
 }
