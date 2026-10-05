@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { ArrowLeftRight, Bug, Move } from 'lucide-react'
+import { ArrowLeftRight, Bug, Download, Move } from 'lucide-react'
 import { AnatomyTwin } from './components/AnatomyTwin'
 import { ApButton } from './components/ApButton'
 import { CaseSelector } from './components/CaseSelector'
@@ -9,6 +9,7 @@ import { GameHUD } from './components/GameHUD'
 import { HUD } from './components/HUD'
 import { TargetHUD } from './components/TargetHUD'
 import { ModeBanner, ModeToggle } from './components/ModeToggle'
+import { useInstallPrompt } from './hooks/useInstallPrompt'
 import { useMediaQuery } from './hooks/useMediaQuery'
 import { PIP_CORNER_CLASS, PIP_CORNERS, usePipDrag } from './hooks/usePipDrag'
 import { PipDropEdge, PipTab } from './components/PipDock'
@@ -111,6 +112,30 @@ export default function App() {
 /** Pre-filled GitHub issue (title prefix and a short template for description, expected behaviour and device / browser). */
 const FEEDBACK_URL =
   'https://github.com/Rjc1999/cathsim/issues/new?title=%5BFeedback%2FBug%5D+&body=%2A%2ADescription%2A%2A%3A%0A%0A%2A%2AExpected+Behavior%2A%2A%3A%0A%0A%2A%2ADevice%2FBrowser%2A%2A%3A'
+
+/** Opt-in install: sits beside the feedback link, appears only when the app is installable, never prompts on its own. */
+function InstallAppButton() {
+  const { state, install } = useInstallPrompt()
+  const [iosHint, setIosHint] = useState(false)
+  if (state === 'hidden') return null
+  return (
+    <>
+      <button
+        type="button"
+        className="inline-flex min-h-9 items-center gap-1.5 px-3 text-[11px] text-zinc-600 transition-colors hover:text-zinc-300 focus-visible:text-zinc-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
+        onClick={() => (state === 'prompt' ? void install() : setIosHint((v) => !v))}
+      >
+        <Download size={12} aria-hidden />
+        {state === 'prompt' ? 'Install App' : 'Add to Home Screen'}
+      </button>
+      {state === 'ios' && iosHint && (
+        <span className="block px-3 pb-1 text-[11px] text-zinc-500" role="status">
+          Tap the Share button, then “Add to Home Screen”.
+        </span>
+      )}
+    </>
+  )
+}
 
 function Trainer() {
   usePedalShortcut()
@@ -245,6 +270,7 @@ function Trainer() {
           <Bug size={12} aria-hidden />
           Feedback / Report Issue
         </a>
+        <InstallAppButton />
       </p>
     </div>
   )
