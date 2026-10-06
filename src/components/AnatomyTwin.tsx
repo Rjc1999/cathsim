@@ -1,5 +1,6 @@
 import { Suspense, useEffect, useRef } from 'react'
-import { Canvas, useFrame, useThree, type RootState } from '@react-three/fiber'
+import { useFrame, useThree, type RootState } from '@react-three/fiber'
+import { RecoverableCanvas } from './RecoverableCanvas'
 import { DirectionalLight, PerspectiveCamera, Vector2 } from 'three'
 import { useGantryDrag } from '../hooks/useGantryDrag'
 import { detectorDirection, detectorUp } from '../lib/gantry'
@@ -109,7 +110,7 @@ export function AnatomyTwin({ compact = false, paused = false }: { compact?: boo
       style={{ background: `radial-gradient(circle at 50% 42%, #2b3547 0%, ${BACKGROUND} 70%, #11161f 100%)` }}
       {...drag}
     >
-      <Canvas
+      <RecoverableCanvas
         flat
         dpr={[1, 2]}
         frameloop={paused ? 'never' : 'demand'}
@@ -123,7 +124,7 @@ export function AnatomyTwin({ compact = false, paused = false }: { compact?: boo
         <Suspense fallback={null}>
           <ToyHeart />
         </Suspense>
-      </Canvas>
+      </RecoverableCanvas>
 
       {reveal && <TwinReveal compact={compact} />}
 
