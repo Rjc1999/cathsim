@@ -1,5 +1,6 @@
 import { Suspense, type MutableRefObject } from 'react'
-import { Canvas, type RootState } from '@react-three/fiber'
+import type { RootState } from '@react-three/fiber'
+import { RecoverableCanvas } from './RecoverableCanvas'
 import type { VesselId } from '../lib/heartIndex'
 import { verticalFovDeg } from '../lib/gantry'
 import { LabelProjector, type LabelRegistry } from './BranchLabels'
@@ -30,7 +31,7 @@ interface FluoroCanvasProps {
  */
 export function FluoroCanvas({ vessel, alpha, beta, frameloop = 'demand', stateRef, labelRegistry }: FluoroCanvasProps) {
   return (
-    <Canvas
+    <RecoverableCanvas
       flat
       dpr={[1, 2]}
       frameloop={frameloop}
@@ -51,6 +52,6 @@ export function FluoroCanvas({ vessel, alpha, beta, frameloop = 'demand', stateR
       {/* Explore-only venous layer; its own Suspense boundary inside, so it never blanks the arteries while it streams in. */}
       <VenousTree />
       {labelRegistry && <LabelProjector vessel={vessel} registry={labelRegistry} />}
-    </Canvas>
+    </RecoverableCanvas>
   )
 }
