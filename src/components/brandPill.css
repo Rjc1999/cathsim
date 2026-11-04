@@ -1,0 +1,90 @@
+/* The cath+code header pill (components/BrandPill.tsx): cathsim-al's src/ui/brandPill.css, so it looks the same as in every CathSim app.
+   Two differences for this page: the CathSim tokens are scoped to the pill (this app has no shared token sheet), and the pill sits in the
+   header row's flow instead of floating over a 3D view (see the "Views placement" block at the bottom). */
+.brand-pill {
+  --ink: #d7e6f5;
+  --ink-dim: #8aa2b8;
+  --accent: #5ad1ff;
+  --green: #3dff8a;
+  --glass: rgba(9, 16, 25, 0.62);
+  --edge: rgba(120, 170, 220, 0.28);
+}
+.brand-pill {
+  position: fixed;
+  z-index: 16; /* over the pearl card (14): the series menu drops down across it */
+  top: calc(10px + env(safe-area-inset-top));
+  left: calc(10px + env(safe-area-inset-left));
+  font: 600 12px/1.2 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color: var(--ink);
+}
+.brand-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 7px 14px 7px 13px;
+  border-radius: 14px;
+  border: 1px solid var(--edge);
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  touch-action: manipulation;
+  cursor: pointer;
+}
+.brand-btn:focus-visible, .brand-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (hover: hover) { .brand-btn:hover, .brand-btn[aria-expanded='true'] { border-color: var(--accent); } }
+.brand-line { font: 700 18px/1.2 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', 'Noto Sans', Arial, sans-serif; letter-spacing: -0.025em; color: #f4f4f5; white-space: nowrap; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6); }
+.brand-sim { color: #38bdf8; }
+.brand-sub { font-weight: 600; }
+.brand-colon { color: var(--ink-dim); }
+.brand-caret { margin-left: 6px; color: var(--accent); font-size: 12px; }
+.brand-tag { font: 500 9px/1 system-ui, sans-serif; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-dim); white-space: nowrap; }
+.brand-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 272px;
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid var(--edge);
+  background: rgba(9, 16, 25, 0.94);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+.brand-menu[hidden] { display: none; }
+.brand-link { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px; border-radius: 8px; color: var(--ink); text-decoration: none; }
+.brand-home { font-size: 12px; font-weight: 700; margin-bottom: 2px; border-bottom: 1px solid var(--edge); border-radius: 8px 8px 0 0; }
+.brand-item-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.brand-item b { font-size: 12px; letter-spacing: 0.01em; white-space: nowrap; }
+.brand-item small { font-size: 10px; font-weight: 500; color: var(--ink-dim); }
+.brand-active { flex: none; font-size: 10px; font-weight: 700; color: var(--green); white-space: nowrap; }
+a.brand-link:hover { background: rgba(255, 255, 255, 0.07); }
+.brand-link[aria-current='page'] { background: rgba(90, 209, 255, 0.12); }
+.brand-foot { margin: 4px 0 0; padding: 8px 10px 4px; border-top: 1px solid var(--edge); font-size: 10px; font-weight: 500; color: var(--ink-dim); }
+.brand-foot strong { color: var(--ink); font-weight: 700; }
+@media (max-width: 520px) { .brand-tag { display: none; } }
+body.touring .brand-pill { opacity: 0; pointer-events: none; }
+
+/* a narrow screen: the series name drops under the wordmark as a small caption, as on cathsim-jr */
+@media (max-width: 520px) {
+  .brand-line { font-size: 16px; }
+  .brand-colon { display: none; }
+  .brand-line { display: flex; flex-wrap: wrap; align-items: baseline; }
+  .brand-caret { order: 1; }
+  .brand-sub { order: 2; flex-basis: 100%; display: block; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #a1a1aa; line-height: 1.1; }
+}
+
+/* Views placement: its own row, centred at the top of the page; the menu drops centred under it, over the page content. */
+.brand-pill { position: relative; top: auto; left: auto; z-index: 50; }
+.brand-menu { z-index: 50; left: 50%; transform: translateX(-50%); }
+@media (max-width: 520px) {
+  .brand-btn { align-items: center; }
+  .brand-line { justify-content: center; }
+  .brand-sub { text-align: center; }
+}

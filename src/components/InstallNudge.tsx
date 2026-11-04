@@ -75,7 +75,7 @@ export function InstallNudge() {
   return (
     <div
       role="dialog"
-      aria-label="Install CathSim"
+      aria-label="Install CathSim Views"
       className="fixed right-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-3 z-50 mx-auto max-w-sm rounded-lg border border-zinc-700 bg-zinc-900/95 p-3 shadow-xl backdrop-blur sm:right-4 sm:left-auto sm:mx-0"
     >
       <button
@@ -86,7 +86,7 @@ export function InstallNudge() {
       >
         <X size={14} aria-hidden />
       </button>
-      <p className="pr-7 text-sm font-medium text-zinc-100">Install CathSim?</p>
+      <p className="pr-7 text-sm font-medium text-zinc-100">Install CathSim Views?</p>
       <p className="mt-0.5 pr-7 text-xs text-zinc-400">Add it to your home screen for full-screen use and offline practice.</p>
       <div className="mt-2.5 flex gap-2">
         <button
