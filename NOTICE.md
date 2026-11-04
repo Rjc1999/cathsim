@@ -2,7 +2,7 @@
 
 ## Heart model
 
-The heart anatomy used by CathSim is derived from:
+The heart anatomy used by CathSim: Views is derived from:
 
 - **"Anatomical heart - codominance"** by **E-learning UMCG** (@eLearningUMCG)
 - Source: <https://sketchfab.com/3d-models/anatomical-heart-codominance-42d07ac1517748ea82bb05b0a362b298>
@@ -35,5 +35,5 @@ The model files listed above remain under CC BY-NC-SA 4.0.
 
 ## Intended use
 
-CathSim is an educational tool for cath lab learners. It is **not** a clinical or diagnostic device, the
+CathSim: Views is an educational tool for cath lab learners. It is **not** a clinical or diagnostic device, the
 anatomy is a single reference model, and it is not validated for clinical decision-making.

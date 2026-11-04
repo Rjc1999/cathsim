@@ -1,4 +1,4 @@
-# CathSim
+# CathSim: Views
 
 A free, mobile-first educational simulator for learning coronary angiography C-arm projections. Drive a virtual
 C-arm (LAO/RAO, CRA/CAU), see a simulated fluoroscopy image of the coronary tree next to a 3D anatomical twin,

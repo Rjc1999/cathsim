@@ -13,8 +13,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'CathSim - Coronary Angiography Simulator',
-        short_name: 'CathSim',
+        name: 'CathSim: Views - Coronary Angiography Simulator',
+        short_name: 'CathSim Views',
         description: 'Coronary fluoroscopy angle trainer for cath lab staff.',
         display: 'standalone',
         background_color: '#0f172a',
