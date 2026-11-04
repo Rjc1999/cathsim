@@ -8,7 +8,7 @@ import './brandPill.css'
  */
 const HOME = { label: 'All CathSim Experiences', href: '/' } as const
 const SERIES = [
-  { n: '01', label: 'CathSim: Views', sub: '3D C-Arm & Fluoroscopic Projections', href: 'https://cathsim.pages.dev', current: true },
+  { n: '01', label: 'CathSim: Views', sub: '3D C-Arm & Fluoroscopic Projections', href: 'https://cathsim-views.pages.dev', current: true },
   { n: '02', label: 'CathSim: Judkins Left', sub: 'Catheter Mechanics & Root Sizing', href: 'https://cathsim-jl.pages.dev' },
   { n: '03', label: 'CathSim: Judkins Right', sub: 'Clockwise Torque & Ostial Hop', href: 'https://cathsim-jr.pages.dev' },
   { n: '04', label: 'CathSim: Amplatz Left', sub: 'Push-to-Disengage Paradox & Backup', href: 'https://cathsim-al.pages.dev' },
