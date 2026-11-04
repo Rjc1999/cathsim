@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { ArrowLeftRight, Bug, Download, Move } from 'lucide-react'
 import { AnatomyTwin } from './components/AnatomyTwin'
+import { BrandPill } from './components/BrandPill'
 import { ApButton } from './components/ApButton'
 import { CaseSelector } from './components/CaseSelector'
 import { ControlSchemeToggle } from './components/ControlSchemeToggle'
@@ -164,10 +165,11 @@ function Trainer() {
 
   return (
     <div className="mx-auto min-h-full w-full max-w-[1500px] p-3 pb-6 lg:p-6">
+      {/* The cath+code pill and its CathSim series menu, as in every CathSim app: its own row, centred over the page */}
+      <div className="mb-3 flex justify-center">
+        <BrandPill />
+      </div>
       <header className="mb-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 px-1">
-        <h1 className="text-lg font-bold tracking-tight text-zinc-100">
-          Cath<span className="text-sky-400">Sim</span>
-        </h1>
         <ModeToggle className="order-last w-full sm:order-none sm:w-auto" />
         {/* One case today; the picker (and its AP shortcut) is Trainer-only so the game header stays uncluttered. */}
         {mode === 'game' ? (
